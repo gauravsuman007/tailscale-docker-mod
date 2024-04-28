@@ -1,10 +1,13 @@
-# The Tailscale universal Docker mod
+# The Tailscale universal Docker mod with EXIT node enabled
 
 This Docker mod lets you slipstream Tailscale into
 [linuxserver.io](https://linuxserver.io) containers. This lets you
-have applications join your tailnet.
+have applications join your tailnet and potentially route all your traffic through an exit node
 
 ## Configuration
+
+The mod is available prebuilt on my dockerhub, use it by defining the mod in the environemnet variable list as:
+`DOCKER_MODS=gauravsuman007/tailscale-docker-mod` 
 
 The Docker mod exposes a bunch of environment variables that you can
 use to configure it.
@@ -16,6 +19,7 @@ use to configure it.
 | `TAILSCALE_AUTHKEY`    | The authkey for your tailnet. You can create one in the [admin panel](https://login.tailscale.com/admin/settings/keys). See [here](https://tailscale.com/kb/1085/auth-keys/) for more information about authkeys and what you can do with them.                                                               | `tskey-auth-hunter2CNTRL-hunter2hunter2` |
 | `TAILSCALE_HOSTNAME`   | The hostname that you want to set for the container. If you don't set this, the hostname of the node on your tailnet will be a bunch of random hexadecimal numbers, which many humans find hard to remember.                                                                                                  | `wiki`                                   |
 | `TAILSCALE_USE_SSH`    | Set this to `1` to enable SSH access to the container.                                                                                                                                                                                                                                                        | `1`                                      |
+| `TAILSCALE_EXIT_NODE_IP`    | Set this to the desired Exit Node's IP to route all traffic through it. In this case, `NET_ADMIN` and `NET_RAW` should be allowed in `cap_add` and there should be a volume mapping `/dev/net/tun:/dev/net/tun`.                                                                                                                                                                                                                                                        | `1`                                      |
 | `TAILSCALE_SERVE_PORT` | The port number that you want to expose on your tailnet. This will be the port of your DokuWiki, Transmission, or other container.                                                                                                                                                                            | `80`                                     |
 | `TAILSCALE_SERVE_MODE` | The mode you want to run Tailscale serving in. This should be `https` in most cases, but there may be times when you need to enable `tls-terminated-tcp` to deal with some weird edge cases like HTTP long-poll connections. See [here](https://tailscale.com/kb/1242/tailscale-serve/) for more information. | `https`                                  |
 | `TAILSCALE_FUNNEL`     | Set this to `true`, `1`, or `t` to enable [funnel](https://tailscale.com/kb/1243/funnel/). For more information about the accepted syntax, please read the [strconv.ParseBool documentation](https://pkg.go.dev/strconv#ParseBool) in the Go standard library.                                                | `on`                                     |
@@ -52,6 +56,8 @@ Then use it in a container:
 services:
   dokuwiki:
     volumes:
+
+
       - dokuwiki-tailscale:/var/lib/tailscale
 ```
 
